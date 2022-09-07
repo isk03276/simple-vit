@@ -175,4 +175,4 @@ games/
 .vscode/
 
 # data
-./data
+data/
