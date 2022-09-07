@@ -9,9 +9,9 @@ except ModuleNotFoundError:
 
 
 class TestDatasetGetter(unittest.TestCase):
-    def test(self):
+    def test_data_load(self):
         dataset = DatasetGetter.get_dataset()
-        print(dataset)
+        dataset_loader = DatasetGetter.get_dataset_loader(dataset=dataset, batch_size=2)
 
 
 if __name__ == "__main__":
