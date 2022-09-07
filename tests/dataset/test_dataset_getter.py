@@ -1,0 +1,18 @@
+import sys
+import unittest
+
+try:
+    from dataset.dataset_getter import DatasetGetter
+except ModuleNotFoundError:
+    sys.path.append(".")
+    from dataset.dataset_getter import DatasetGetter
+
+
+class TestDatasetGetter(unittest.TestCase):
+    def test(self):
+        dataset = DatasetGetter.get_dataset()
+        print(dataset)
+
+
+if __name__ == "__main__":
+    unittest.main()
