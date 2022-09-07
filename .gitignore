@@ -173,3 +173,6 @@ dmypy.json
 checkpoints/
 games/
 .vscode/
+
+# data
+./data
