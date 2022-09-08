@@ -13,10 +13,9 @@ except ModuleNotFoundError:
 class TestImage(unittest.TestCase):
     def test_slice_image_to_patches(self):
         images = torch.zeros((10, 3, 200, 200))
-        h_window = 2
-        w_window = 2
-        patches = slice_image_to_patches(images, h_window, w_window)
-        assert patches.shape == (10, 100, 100, 3, 2, 2)
+        patch_size = 2
+        patches = slice_image_to_patches(images, patch_size)
+        assert patches.shape == (10, 10000, 3, patch_size, patch_size)
         
         
 if __name__ == "__main__":
