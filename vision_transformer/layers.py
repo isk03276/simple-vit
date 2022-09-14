@@ -40,7 +40,7 @@ class MultiHeadAttention(nn.Module):
 
         self.linear = nn.Linear(n_dim, n_dim)
 
-        self.softmax = nn.Softmax()
+        self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
         queries = self.split_multiple_heads(self.query(x))
