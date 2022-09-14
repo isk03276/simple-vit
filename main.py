@@ -1,7 +1,10 @@
 import argparse
 
+import numpy as np
+
 from dataset.dataset_getter import DatasetGetter
 from vision_transformer.models import ViT
+from vision_transformer.learner import ViTLearner
 
 
 def run(args):
@@ -22,8 +25,16 @@ def run(args):
         n_heads=args.heads_num,
         n_classes=args.classes_num,
     )
-    for images, labels in dataset_loader:
-        print(model.predict(images))
+    learner = ViTLearner(model=model)
+    
+    epoch = 1 if args.test else args.epoch
+    for epoch in range(epoch):
+        loss_list, acc_list = [], []
+        for images, labels in dataset_loader:
+            loss, acc = learner.step(images=images, labels=labels, is_train=not args.test)
+            loss_list.append(loss)
+            acc_list.append(acc)
+        print("[Epoch {}] Loss : {} | Accuracy : {}".format(epoch, np.mean(loss_list), np.mean(acc_list)))
 
 
 if __name__ == "__main__":
@@ -35,7 +46,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dataset-path", type=str, default="data/", help="Dataset path"
     )
-    parser.add_argument("--classes-num", type=int, default=4, help="Number of classes")
+    parser.add_argument("--classes-num", type=int, default=10, help="Number of classes")
     parser.add_argument("--patch-size", type=int, default=4, help="Image patch size")
     parser.add_argument(
         "--embedding-size", type=int, default=512, help="Number of hidden units"
@@ -50,6 +61,7 @@ if __name__ == "__main__":
         "--heads-num", type=int, default=8, help="Number of attention heads"
     )
     # train / test
+    parser.add_argument("--epoch", type=int, default=200, help="Learning epoch")
     parser.add_argument("--batch-size", type=int, default=8, help="Batch size")
     parser.add_argument("--test", action="store_true", help="Whether to test the model")
     # save / load
