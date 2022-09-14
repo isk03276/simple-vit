@@ -5,9 +5,12 @@ import numpy as np
 from dataset.dataset_getter import DatasetGetter
 from vision_transformer.models import ViT
 from vision_transformer.learner import ViTLearner
+from utils.torch import get_device
 
 
 def run(args):
+    device = get_device(args.device)
+
     dataset = DatasetGetter.get_dataset(
         dataset_name=args.dataset_name, path=args.dataset_path, is_train=not args.test
     )
@@ -24,22 +27,36 @@ def run(args):
         n_encoder_blocks=args.encoder_blocks_num,
         n_heads=args.heads_num,
         n_classes=args.classes_num,
-    )
+    ).to(device)
     learner = ViTLearner(model=model)
-    
+
     epoch = 1 if args.test else args.epoch
     for epoch in range(epoch):
         loss_list, acc_list = [], []
         for images, labels in dataset_loader:
-            loss, acc = learner.step(images=images, labels=labels, is_train=not args.test)
+            images = images.to(device)
+            labels = labels.to(device)
+            loss, acc = learner.step(
+                images=images, labels=labels, is_train=not args.test
+            )
             loss_list.append(loss)
             acc_list.append(acc)
-        print("[Epoch {}] Loss : {} | Accuracy : {}".format(epoch, np.mean(loss_list), np.mean(acc_list)))
+        print(
+            "[Epoch {}] Loss : {} | Accuracy : {}".format(
+                epoch, np.mean(loss_list), np.mean(acc_list)
+            )
+        )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Vision Transformer")
     # dataset
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="mps",
+        help="Device name to use GPU (ex. cpu, cuda, mps, etc.)",
+    )
     parser.add_argument(
         "--dataset-name", type=str, default="cifar10", help="Dataset name (ex. cifar10"
     )

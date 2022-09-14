@@ -21,7 +21,12 @@ class ViT(nn.Module):
         self.patch_embedder = PatchEmbedder(
             image_size=image_size, n_channel=n_channel, n_patch=n_patch, n_dim=n_dim
         )
-        self.encoders = nn.Sequential(*[EncoderBlock(n_dim=n_dim, n_heads=n_heads) for _ in range(n_encoder_blocks)])
+        self.encoders = nn.Sequential(
+            *[
+                EncoderBlock(n_dim=n_dim, n_heads=n_heads)
+                for _ in range(n_encoder_blocks)
+            ]
+        )
         self.classifier = Classifier(n_dim=n_dim, n_classes=n_classes)
 
     def forward(self, x):
