@@ -1,0 +1,4 @@
+patchify
+torch
+torchvision
+tensorboard
