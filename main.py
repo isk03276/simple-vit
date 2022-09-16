@@ -23,6 +23,7 @@ def get_current_time() -> str:
     curr_time = NOWTIMES.strftime("%y%m%d_%H%M%S")
     return curr_time
 
+
 def run(args):
     device = get_device(args.device)
 
@@ -45,7 +46,7 @@ def run(args):
         args.encoder_blocks_num = config["encoder_blocks_num"]
         args.heads_num = config["heads_num"]
         args.classes_num = config["classes_num"]
-        
+
     model = ViT(
         image_size=image_size,
         n_channel=n_channel,
@@ -61,12 +62,12 @@ def run(args):
     # Train / Test Iteration
     learner = ViTLearner(model=model)
     epoch = 1 if args.test else args.epoch
-    
+
     if not args.test:
         model_save_dir = "{}/{}/".format(args.save_dir, get_current_time())
         logger = TensorboardLogger(model_save_dir)
         save_yaml(vars(args), model_save_dir + "config.yaml")
-    
+
     for epoch in range(epoch):
         loss_list, acc_list = [], []
         for images, labels in dataset_loader:
@@ -83,14 +84,10 @@ def run(args):
             if (epoch + 1) % args.save_interval == 0:
                 save_model(model, model_save_dir, "epoch_{}".format(epoch + 1))
             # Log
-            logger.log(tag="Training/Loss", value=loss_avg, step=epoch+1)
-            logger.log(tag="Training/Accuracy", value=acc_avg, step=epoch+1)
-        
-        print(
-            "[Epoch {}] Loss : {} | Accuracy : {}".format(
-                epoch, loss_avg, acc_avg
-            )
-        )
+            logger.log(tag="Training/Loss", value=loss_avg, step=epoch + 1)
+            logger.log(tag="Training/Accuracy", value=acc_avg, step=epoch + 1)
+
+        print("[Epoch {}] Loss : {} | Accuracy : {}".format(epoch, loss_avg, acc_avg))
 
 
 if __name__ == "__main__":
@@ -134,7 +131,11 @@ if __name__ == "__main__":
         "--save-interval", type=int, default=5, help="Model save interval"
     )
     parser.add_argument("--load-from", type=str, help="Path to load the model")
-    parser.add_argument("--load-model-config", action="store_true", help="Whether to use the config file of the model to be loaded")
+    parser.add_argument(
+        "--load-model-config",
+        action="store_true",
+        help="Whether to use the config file of the model to be loaded",
+    )
 
     args = parser.parse_args()
     run(args)

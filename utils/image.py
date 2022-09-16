@@ -2,7 +2,6 @@ from typing import Union
 
 import numpy as np
 import torch
-import patchify
 
 
 def pad_image(image: Union[np.ndarray, torch.Tensor]):
