@@ -88,6 +88,8 @@ def run(args):
             logger.log(tag="Training/Accuracy", value=acc_avg, step=epoch + 1)
 
         print("[Epoch {}] Loss : {} | Accuracy : {}".format(epoch, loss_avg, acc_avg))
+        
+    logger.close()
 
 
 if __name__ == "__main__":
