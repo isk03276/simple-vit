@@ -34,7 +34,8 @@ def run(args):
     dataset_loader = DatasetGetter.get_dataset_loader(
         dataset=dataset, batch_size=1 if args.test else args.batch_size
     )
-    n_channel, image_size = next(iter(dataset_loader))[0].size()[1:3]
+    sampled_data = next(iter(dataset_loader))[0]
+    n_channel, image_size = sampled_data.size()[1:3]
 
     # Model Instantiation
     if args.load_from and args.load_model_config:
@@ -66,6 +67,7 @@ def run(args):
     if not args.test:
         model_save_dir = "{}/{}/".format(args.save_dir, get_current_time())
         logger = TensorboardLogger(model_save_dir)
+        logger.add_model_graph(model=model, image=sampled_data)
         save_yaml(vars(args), model_save_dir + "config.yaml")
 
     for epoch in range(epoch):
