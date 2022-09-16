@@ -8,6 +8,7 @@ from dataset.dataset_getter import DatasetGetter
 from vision_transformer.models import ViT
 from vision_transformer.learner import ViTLearner
 from utils.torch import get_device, save_model, load_model
+from utils.log import TensorboardLogger
 
 
 def get_current_time() -> str:
@@ -48,7 +49,11 @@ def run(args):
     # Train / Test Iteration
     learner = ViTLearner(model=model)
     epoch = 1 if args.test else args.epoch
-    model_save_dir = "{}/{}/".format(args.save_dir, get_current_time()) if not args.test else None
+    
+    if not args.test:
+        model_save_dir = "{}/{}/".format(args.save_dir, get_current_time())
+        logger = TensorboardLogger(model_save_dir)
+    
     for epoch in range(epoch):
         loss_list, acc_list = [], []
         for images, labels in dataset_loader:
@@ -64,7 +69,10 @@ def run(args):
             # Save model
             if (epoch + 1) % args.save_interval == 0:
                 save_model(model, model_save_dir, "epoch_{}".format(epoch + 1))
-                
+            # Log
+            logger.log(tag="Training/Loss", value=loss_avg, step=epoch+1)
+            logger.log(tag="Training/Accuracy", value=acc_avg, step=epoch+1)
+        
         print(
             "[Epoch {}] Loss : {} | Accuracy : {}".format(
                 epoch, loss_avg, acc_avg
