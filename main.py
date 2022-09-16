@@ -55,6 +55,7 @@ def run(args):
         n_encoder_blocks=args.encoder_blocks_num,
         n_heads=args.heads_num,
         n_classes=args.classes_num,
+        use_cnn_embedding=args.use_cnn_embedding,
     ).to(device)
     if args.load_from is not None:
         load_model(model, args.load_from)
@@ -119,6 +120,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--heads-num", type=int, default=8, help="Number of attention heads"
     )
+    parser.add_argument("--use-cnn-embedding", action="store_true", help="Whether to use cnn based patch embedding")
     # train / test
     parser.add_argument("--epoch", type=int, default=200, help="Learning epoch")
     parser.add_argument("--batch-size", type=int, default=128, help="Batch size")

@@ -14,7 +14,7 @@ class MLPBlock(nn.Module):
         x = self.activation(self.linear1(x))
         x = self.activation(self.linear2(x))
         return x
-
+    
 
 class Classifier(nn.Module):
     def __init__(self, n_dim: int, n_classes: int):

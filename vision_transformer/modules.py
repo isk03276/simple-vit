@@ -8,22 +8,31 @@ from utils.image import slice_image_to_patches
 
 
 class PatchEmbedder(nn.Module):
-    def __init__(self, image_size: int, n_channel: int, n_patch: int, n_dim: int):
+    def __init__(self, image_size: int, n_channel: int, n_patch: int, n_dim: int, use_cnn_embedding: bool):
         super().__init__()
         self.n_patch = n_patch
-        self.linear_projection = nn.Linear(n_channel * n_patch**2, n_dim)
+        self.use_cnn_embedding = use_cnn_embedding
+        if self.use_cnn_embedding:
+            self.projection = nn.Conv2d(in_channels=n_channel, out_channels=n_dim, kernel_size=n_patch, stride=n_patch)
+        else:
+            self.projection = nn.Linear(n_channel * n_patch**2, n_dim)
         self.class_token = nn.Parameter(torch.randn(1, 1, n_dim))
         self.position_embedding = nn.Parameter(
             torch.randn((image_size // n_patch) ** 2 + 1, n_dim)
         )
 
     def forward(self, x):
-        # (B, C, H, W) -> (B, N, C  * P * P)
-        patches = slice_image_to_patches(
-            images=x, patch_size=self.n_patch, flatten=True
-        )
-        batch_size = patches.shape[0]
-        embs = self.linear_projection(patches)
+        batch_size = x.size(0)
+        if self.use_cnn_embedding:
+            embs = self.projection(x)
+            embs = embs.flatten(2)
+            embs = embs.transpose(-1, -2)
+        else:
+            # (B, C, H, W) -> (B, N, C  * P * P)
+            patches = slice_image_to_patches(
+                images=x, patch_size=self.n_patch, flatten=True
+            )
+            embs = self.projection(patches)
         # (1, 1, dim) -> (B, 1, dim )
         class_token = self.class_token.repeat(batch_size, 1, 1)
         embs = torch.cat((embs, class_token), dim=1)

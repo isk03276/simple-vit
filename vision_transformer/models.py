@@ -15,10 +15,11 @@ class ViT(nn.Module):
         n_encoder_blocks: int,
         n_heads: int,
         n_classes: int,
+        use_cnn_embedding: bool,
     ):
         super().__init__()
         self.patch_embedder = PatchEmbedder(
-            image_size=image_size, n_channel=n_channel, n_patch=n_patch, n_dim=n_dim
+            image_size=image_size, n_channel=n_channel, n_patch=n_patch, n_dim=n_dim, use_cnn_embedding=use_cnn_embedding,
         )
         self.encoders = nn.Sequential(
             *[
