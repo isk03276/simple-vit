@@ -1,3 +1,4 @@
+import os
 import argparse
 
 import datetime
@@ -9,6 +10,7 @@ from vision_transformer.models import ViT
 from vision_transformer.learner import ViTLearner
 from utils.torch import get_device, save_model, load_model
 from utils.log import TensorboardLogger
+from utils.config import save_yaml, load_from_yaml
 
 
 def get_current_time() -> str:
@@ -34,6 +36,16 @@ def run(args):
     n_channel, image_size = next(iter(dataset_loader))[0].size()[1:3]
 
     # Model Instantiation
+    if args.load_from and args.load_model_config:
+        dir_path = os.path.dirname(args.load_from)
+        config_file_path = dir_path + "/config.yaml"
+        config = load_from_yaml(config_file_path)
+        args.patch_size = config["patch_size"]
+        args.embedding_size = config["embedding_size"]
+        args.encoder_blocks_num = config["encoder_blocks_num"]
+        args.heads_num = config["heads_num"]
+        args.classes_num = config["classes_num"]
+        
     model = ViT(
         image_size=image_size,
         n_channel=n_channel,
@@ -53,6 +65,7 @@ def run(args):
     if not args.test:
         model_save_dir = "{}/{}/".format(args.save_dir, get_current_time())
         logger = TensorboardLogger(model_save_dir)
+        save_yaml(vars(args), model_save_dir + "config.yaml")
     
     for epoch in range(epoch):
         loss_list, acc_list = [], []
@@ -121,6 +134,7 @@ if __name__ == "__main__":
         "--save-interval", type=int, default=5, help="Model save interval"
     )
     parser.add_argument("--load-from", type=str, help="Path to load the model")
+    parser.add_argument("--load-model-config", action="store_true", help="Whether to use the config file of the model to be loaded")
 
     args = parser.parse_args()
     run(args)
