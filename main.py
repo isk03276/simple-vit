@@ -1,16 +1,29 @@
 import argparse
 
+import datetime
+
 import numpy as np
 
 from dataset.dataset_getter import DatasetGetter
 from vision_transformer.models import ViT
 from vision_transformer.learner import ViTLearner
-from utils.torch import get_device
+from utils.torch import get_device, save_model, load_model
 
+
+def get_current_time() -> str:
+    """
+    Generate current time as string.
+    Returns:
+        str: current time
+    """
+    NOWTIMES = datetime.datetime.now()
+    curr_time = NOWTIMES.strftime("%y%m%d_%H%M%S")
+    return curr_time
 
 def run(args):
     device = get_device(args.device)
 
+    # Getting Dataset
     dataset = DatasetGetter.get_dataset(
         dataset_name=args.dataset_name, path=args.dataset_path, is_train=not args.test
     )
@@ -19,6 +32,7 @@ def run(args):
     )
     n_channel, image_size = next(iter(dataset_loader))[0].size()[1:3]
 
+    # Model Instantiation
     model = ViT(
         image_size=image_size,
         n_channel=n_channel,
@@ -28,9 +42,13 @@ def run(args):
         n_heads=args.heads_num,
         n_classes=args.classes_num,
     ).to(device)
-    learner = ViTLearner(model=model)
+    if args.load_from is not None:
+        load_model(model, args.load_from)
 
+    # Train / Test Iteration
+    learner = ViTLearner(model=model)
     epoch = 1 if args.test else args.epoch
+    model_save_dir = "{}/{}/".format(args.save_dir, get_current_time()) if not args.test else None
     for epoch in range(epoch):
         loss_list, acc_list = [], []
         for images, labels in dataset_loader:
@@ -41,9 +59,15 @@ def run(args):
             )
             loss_list.append(loss)
             acc_list.append(acc)
+        loss_avg, acc_avg = np.mean(loss_list), np.mean(acc_list)
+        if not args.test:
+            # Save model
+            if (epoch + 1) % args.save_interval == 0:
+                save_model(model, model_save_dir, "epoch_{}".format(epoch + 1))
+                
         print(
             "[Epoch {}] Loss : {} | Accuracy : {}".format(
-                epoch, np.mean(loss_list), np.mean(acc_list)
+                epoch, loss_avg, acc_avg
             )
         )
 
@@ -82,6 +106,9 @@ if __name__ == "__main__":
     parser.add_argument("--batch-size", type=int, default=8, help="Batch size")
     parser.add_argument("--test", action="store_true", help="Whether to test the model")
     # save / load
+    parser.add_argument(
+        "--save-dir", type=str, default="checkpoints/", help="Dataset name (ex. cifar10"
+    )
     parser.add_argument(
         "--save-interval", type=int, default=5, help="Model save interval"
     )
