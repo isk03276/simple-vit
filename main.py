@@ -111,18 +111,18 @@ if __name__ == "__main__":
         "--dataset-path", type=str, default="data/", help="Dataset path"
     )
     parser.add_argument("--classes-num", type=int, default=10, help="Number of classes")
-    parser.add_argument("--patch-size", type=int, default=4, help="Image patch size")
+    parser.add_argument("--patch-size", type=int, default=16, help="Image patch size")
     parser.add_argument(
-        "--embedding-size", type=int, default=512, help="Number of hidden units"
+        "--embedding-size", type=int, default=768, help="Number of hidden units"
     )
     parser.add_argument(
         "--encoder-blocks-num",
         type=int,
-        default=8,
+        default=12,
         help="Number of transformer encoder blocks",
     )
     parser.add_argument(
-        "--heads-num", type=int, default=8, help="Number of attention heads"
+        "--heads-num", type=int, default=12, help="Number of attention heads"
     )
     parser.add_argument("--use-cnn-embedding", action="store_true", help="Whether to use cnn based patch embedding")
     # train / test
