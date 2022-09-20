@@ -34,7 +34,7 @@ def run(args):
     dataset_loader = DatasetGetter.get_dataset_loader(
         dataset=dataset, batch_size=1 if args.test else args.batch_size
     )
-    sampled_data = next(iter(dataset_loader))[0]
+    sampled_data = next(iter(dataset_loader))[0].to(device)
     n_channel, image_size = sampled_data.size()[1:3]
 
     # Model Instantiation
