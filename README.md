@@ -22,3 +22,5 @@ python main.py --dataset-name DATASET_NAME(ex. cifar10) --device DEVICE(ex. cuda
 **- CIFAR-10**  
 <img src="https://user-images.githubusercontent.com/23740495/190575759-317fe1fc-57a0-4771-abb1-41925d72e051.png" width="70%" height="70%"/>
 
+**- CIFAR-100**  
+<img src="https://user-images.githubusercontent.com/23740495/191168744-1871189b-5f7c-47e6-a005-35cc472457cf.png" width="70%" height="70%"/>  
