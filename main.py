@@ -101,11 +101,11 @@ if __name__ == "__main__":
     parser.add_argument(
         "--device",
         type=str,
-        default="mps",
+        default="cuda",
         help="Device name to use GPU (ex. cpu, cuda, mps, etc.)",
     )
     parser.add_argument(
-        "--dataset-name", type=str, default="cifar10", help="Dataset name (ex. cifar10"
+        "--dataset-name", type=str, default="cifar100", help="Dataset name (ex. cifar10"
     )
     parser.add_argument(
         "--dataset-path", type=str, default="data/", help="Dataset path"
